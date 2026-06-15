@@ -14,13 +14,13 @@ from uuid import uuid4
 import pytest
 from sqlalchemy.orm import Session
 
+from app.constants.sleep import SleepStageType
 from app.models import EventRecord, SleepDetails, WorkoutDetails
 from app.schemas.enums import SeriesType
 from app.schemas.providers.mobile_sdk import SyncRequest as SDKSyncRequest
 from app.schemas.providers.mobile_sdk.sleep_state import SleepState, SleepStateStage
 from app.services.apple.healthkit.import_service import ImportService
 from app.services.apple.healthkit.sleep_service import finish_sleep
-from app.constants.sleep import SleepStageType
 from tests.factories import UserFactory
 
 SDK_ENVELOPE: dict[str, str] = {

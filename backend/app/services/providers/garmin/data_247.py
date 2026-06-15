@@ -1921,9 +1921,7 @@ class Garmin247Data(Base247DataTemplate):
                         if health_score:
                             all_health_scores.append(health_score)
                         for raw_nap in normalized.get("naps", []):
-                            nap_normalized = self._normalize_nap(
-                                raw_nap, user_id, normalized.get("garmin_summary_id")
-                            )
+                            nap_normalized = self._normalize_nap(raw_nap, user_id, normalized.get("garmin_summary_id"))
                             nap_result = self._build_sleep_record(user_id, nap_normalized)
                             if nap_result:
                                 nap_record, nap_detail = nap_result
