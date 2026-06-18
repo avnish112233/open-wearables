@@ -15,7 +15,7 @@ import pytest
 from sqlalchemy.orm import Session
 
 from app.constants.sleep import SleepStageType
-from app.models import EventRecord, SleepDetails, WorkoutDetails
+from app.models import DataSource, EventRecord, SleepDetails, WorkoutDetails
 from app.schemas.enums import SeriesType
 from app.schemas.providers.mobile_sdk import SyncRequest as SDKSyncRequest
 from app.schemas.providers.mobile_sdk.sleep_state import SleepState, SleepStateStage
@@ -682,8 +682,13 @@ class TestAppleSleepNapDetection:
             stages=[stage],
         )
 
-    def _get_detail(self, db: Session) -> SleepDetails:
-        record = db.query(EventRecord).filter(EventRecord.category == "sleep").first()
+    def _get_detail(self, db: Session, user_id: str) -> SleepDetails:
+        record = (
+            db.query(EventRecord)
+            .join(DataSource, EventRecord.data_source_id == DataSource.id)
+            .filter(EventRecord.category == "sleep", DataSource.user_id == user_id)
+            .first()
+        )
         assert record is not None
         detail = db.query(SleepDetails).filter(SleepDetails.record_id == record.id).first()
         assert detail is not None
@@ -696,7 +701,7 @@ class TestAppleSleepNapDetection:
 
         finish_sleep(db, str(user.id), self._make_state(start, end))
 
-        assert self._get_detail(db).is_nap is True
+        assert self._get_detail(db, str(user.id)).is_nap is True
 
     def test_long_session_is_not_nap(self, db: Session) -> None:
         user = UserFactory()
@@ -705,7 +710,7 @@ class TestAppleSleepNapDetection:
 
         finish_sleep(db, str(user.id), self._make_state(start, end))
 
-        assert self._get_detail(db).is_nap is False
+        assert self._get_detail(db, str(user.id)).is_nap is False
 
     def test_session_exactly_at_threshold_is_nap(self, db: Session) -> None:
         user = UserFactory()
@@ -714,7 +719,7 @@ class TestAppleSleepNapDetection:
 
         finish_sleep(db, str(user.id), self._make_state(start, end))
 
-        assert self._get_detail(db).is_nap is False  # exactly at threshold: not < threshold
+        assert self._get_detail(db, str(user.id)).is_nap is False  # exactly at threshold: not < threshold
 
     def test_session_just_over_threshold_is_not_nap(self, db: Session) -> None:
         user = UserFactory()
@@ -723,4 +728,4 @@ class TestAppleSleepNapDetection:
 
         finish_sleep(db, str(user.id), self._make_state(start, end))
 
-        assert self._get_detail(db).is_nap is False
+        assert self._get_detail(db, str(user.id)).is_nap is False
