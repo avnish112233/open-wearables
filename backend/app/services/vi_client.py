@@ -35,13 +35,14 @@ def _hmac_headers(payload: dict[str, Any]) -> dict[str, str]:
 
 def _read_headers() -> dict[str, str]:
     return {
-        "X-API-Key": settings.vi_api_key.get_secret_value(),
+        "x-api-key": settings.vi_api_key.get_secret_value(),
         "Content-Type": "application/json",
     }
 
 
-async def get_patient_diagnostics(sukra_id: str) -> dict[str, Any]:
-    url = f"{settings.vi_base_url}{settings.vi_patient_path}/{sukra_id}"
+async def get_all_reports(sukra_order_id: str) -> dict[str, Any]:
+    """Fetch appointment + all diagnostic reports for a sukra_order_id."""
+    url = f"{settings.vi_base_url}{settings.vi_patient_path}/{sukra_order_id}"
     async with httpx.AsyncClient(timeout=15.0) as client:
         res = await client.get(url, headers=_read_headers())
         res.raise_for_status()

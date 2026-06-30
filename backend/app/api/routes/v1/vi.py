@@ -1,16 +1,16 @@
 from fastapi import APIRouter, HTTPException
 
 from app.services import ApiKeyDep
-from app.services.vi_client import create_appointment, get_patient_diagnostics
+from app.services.vi_client import create_appointment, get_all_reports
 
 router = APIRouter()
 
 
-@router.get("/vi/patient/{sukra_id}")
-async def get_vi_patient(sukra_id: str, _: ApiKeyDep) -> dict:
-    """Fetch patient diagnostic data from VI by sukra_id."""
+@router.get("/vi/reports/{sukra_order_id}")
+async def get_vi_reports(sukra_order_id: str, _: ApiKeyDep) -> dict:
+    """Fetch appointment + all diagnostic reports from VI by sukra_order_id."""
     try:
-        return await get_patient_diagnostics(sukra_id)
+        return await get_all_reports(sukra_order_id)
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"VI API error: {exc}") from exc
 
