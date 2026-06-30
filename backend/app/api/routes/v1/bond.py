@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy import select, update
 
 from app.database import DbSession
-from app.models.bond import BondAthlete, BondTrainingPlan
+from app.models.bond import BondAthlete, BondReferenceConfig, BondTrainingPlan
 from app.services import ApiKeyDep
 
 router = APIRouter()
@@ -175,3 +175,18 @@ def _plan_dict(p: BondTrainingPlan) -> dict:
         "weeks": p.weeks,
         "created_at": p.created_at.isoformat(),
     }
+
+
+# ── Reference config ─────────────────────────────────────────────────────────
+
+@router.get("/bond/reference-config")
+async def get_reference_config(session: DbSession, _: ApiKeyDep) -> dict:
+    """Return the active reference ranges and quadrant scoring config.
+
+    Read-only — updated directly in Postgres by admins, never by coaches.
+    Falls back to empty dict if the seed row hasn't been inserted yet.
+    """
+    row = await session.scalar(
+        select(BondReferenceConfig).where(BondReferenceConfig.key == "default")
+    )
+    return row.data if row else {}

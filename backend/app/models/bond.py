@@ -37,3 +37,16 @@ class BondTrainingPlan(BaseDbModel):
     status: Mapped[str_50] = mapped_column(String(50), default="draft")
     weeks: Mapped[list[dict]] = mapped_column(JSONB, default=list)
     title: Mapped[str_255 | None]
+
+
+class BondReferenceConfig(BaseDbModel):
+    """Named JSONB blobs for VO2/DEXA reference ranges and quadrant scoring config.
+
+    Rows are keyed by `key`; only one row with key='default' is used by the app.
+    Update via psql or the Railway console — coaches have no write access.
+    """
+
+    __tablename__ = "bond_reference_config"
+
+    key: Mapped[str_100] = mapped_column(String(100), unique=True)
+    data: Mapped[dict] = mapped_column(JSONB, default=dict)
