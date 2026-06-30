@@ -235,6 +235,14 @@ class Settings(BaseSettings):
             self.oura_webhook_verification_token = SecretStr(self.secret_key)
         return self
 
+    # Vital Insights (VI) integration
+    vi_base_url: str = "https://vitaldev.vitalinsights.in"
+    vi_api_key: SecretStr = SecretStr("")
+    vi_hmac_secret: SecretStr = SecretStr("")
+    vi_team_name: str = "bond"
+    vi_patient_path: str = "/content/patient-data"
+    vi_appointment_path: str = "/content/appointment-from-external-team"
+
     @field_validator("cors_origins", mode="after")
     @classmethod
     def assemble_cors_origins(cls, v: str | list[str]) -> list[str] | str:

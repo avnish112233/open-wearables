@@ -31,9 +31,14 @@ from .token import router as token_router
 from .user_invitation_code import router as user_invitation_code_router
 from .users import router as users_router
 from .vendor_workouts import router as vendor_workouts_router
+from .bond import router as bond_router
+from .vi import router as vi_router
 from .webhooks import router as providers_webhooks_router
 
 v1_router = APIRouter()
+
+v1_router.include_router(bond_router, tags=["External: Bond"])
+v1_router.include_router(vi_router, tags=["External: Vital Insights"])
 
 # --- External: 3rd party integration endpoints ---
 v1_router.include_router(meta_router, tags=["External: Meta"])

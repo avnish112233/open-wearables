@@ -21,6 +21,7 @@ from .user import User
 from .user_connection import UserConnection
 from .user_invitation_code import UserInvitationCode
 from .workout_details import WorkoutDetails
+from .bond import BondAthlete, BondTrainingPlan, BondReferenceConfig
 
 __all__ = [
     "ApiKey",
@@ -46,4 +47,7 @@ __all__ = [
     "DataPointSeries",
     "SeriesTypeDefinition",
     "HealthScore",
+    "BondAthlete",
+    "BondTrainingPlan",
+    "BondReferenceConfig",
 ]
