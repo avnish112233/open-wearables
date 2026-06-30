@@ -2,11 +2,12 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from sqlalchemy import select, update
+from sqlalchemy import select
 
-from app.database import DbSession
+from app.database import AsyncDbSession as DbSession
 from app.models.bond import BondAthlete, BondReferenceConfig, BondTrainingPlan
 from app.services import ApiKeyDep
+from app.services import vi_client
 
 router = APIRouter()
 
@@ -190,3 +191,96 @@ async def get_reference_config(session: DbSession, _: ApiKeyDep) -> dict:
         select(BondReferenceConfig).where(BondReferenceConfig.key == "default")
     )
     return row.data if row else {}
+
+
+# ── VI Profile ────────────────────────────────────────────────────────────────
+
+@router.get("/bond/athletes/{athlete_id}/vi-profile")
+async def get_athlete_vi_profile(athlete_id: UUID, session: DbSession, _: ApiKeyDep) -> dict:
+    """Fetch athlete record from Bond DB and enrich with VI diagnostic data."""
+    athlete = await session.scalar(select(BondAthlete).where(BondAthlete.id == athlete_id))
+    if not athlete:
+        raise HTTPException(status_code=404, detail="Athlete not found")
+    vi_data = None
+    if athlete.sukra_order_id:
+        try:
+            raw = await vi_client.get_all_reports(athlete.sukra_order_id)
+            vi_data = _parse_vi_data(raw)
+        except Exception:
+            vi_data = None
+    return {
+        "id": str(athlete.id),
+        "name": athlete.name,
+        "phone": athlete.phone,
+        "sukra_order_id": athlete.sukra_order_id,
+        "access_granted": athlete.access_granted,
+        "vi": vi_data,
+    }
+
+
+def _parse_vi_data(raw: dict) -> dict:
+    """Extract structured profile/dexa/vo2max/strength from raw VI API response."""
+    appt = raw.get("appointment") or {}
+    reports = raw.get("reports") or []
+
+    dexa_r = next((r for r in reports if r.get("report_type") == "DEXA"), None)
+    vo2_r  = next((r for r in reports if r.get("report_type") == "VO2MAX"), None)
+    str_r  = next((r for r in reports if r.get("report_type") == "STRENGTH"), None)
+
+    profile: dict = {}
+    if appt:
+        profile = {
+            "name": appt.get("patient_name"),
+            "age": appt.get("age"),
+            "sex": appt.get("sex"),
+            "dob": appt.get("dob"),
+            "height_cm": appt.get("height_cm"),
+            "weight_kg": appt.get("weight_kg"),
+            "last_tested": appt.get("appointment_date"),
+        }
+
+    dexa: dict | None = None
+    if dexa_r:
+        d = dexa_r.get("data") or {}
+        dexa = {
+            "date": dexa_r.get("report_date"),
+            "fat_pct": d.get("fat_percentage"),
+            "almi": d.get("almi"),
+            "ffmi": d.get("ffmi"),
+            "lean_mass_g": d.get("lean_mass_g"),
+            "fat_mass_g": d.get("fat_mass_g"),
+            "bmc_g": d.get("bmc_g"),
+            "visceral_fat_score": d.get("visceral_fat_score"),
+            "arm_asymmetry_pct": d.get("arm_asymmetry_pct"),
+            "leg_asymmetry_pct": d.get("leg_asymmetry_pct"),
+            "arm_left_lean_g": d.get("arm_left_lean_g"),
+            "arm_right_lean_g": d.get("arm_right_lean_g"),
+            "leg_left_lean_g": d.get("leg_left_lean_g"),
+            "leg_right_lean_g": d.get("leg_right_lean_g"),
+            "body_composition_zone": d.get("body_composition_zone"),
+            "zone_description": d.get("zone_description"),
+            "fracture_risk": d.get("fracture_risk"),
+            "t_score": d.get("t_score"),
+            "z_score": d.get("z_score"),
+            "ag_ratio": d.get("ag_ratio"),
+            "pdf_url": dexa_r.get("pdf_url"),
+            "fat_description": d.get("fat_description"),
+            "fracture_description": d.get("fracture_description"),
+        }
+
+    vo2max: float | None = None
+    if vo2_r:
+        vo2max = (vo2_r.get("data") or {}).get("vo2max")
+
+    strength: dict | None = None
+    if str_r:
+        s = str_r.get("data") or {}
+        strength = {
+            "imtp_kg": s.get("imtp_kg"),
+            "cmj_watts_per_kg": s.get("cmj_watts_per_kg"),
+            "drop_jump_rsi": s.get("drop_jump_rsi"),
+            "grip_left_kg": s.get("grip_left_kg"),
+            "grip_right_kg": s.get("grip_right_kg"),
+        }
+
+    return {"profile": profile, "dexa": dexa, "vo2max": vo2max, "strength": strength}
