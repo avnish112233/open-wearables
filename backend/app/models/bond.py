@@ -48,5 +48,5 @@ class BondReferenceConfig(BaseDbModel):
 
     __tablename__ = "bond_reference_config"
 
-    key: Mapped[str_100] = mapped_column(String(100), unique=True)
+    key: Mapped[str_100] = mapped_column(String(100), primary_key=True)
     data: Mapped[dict] = mapped_column(JSONB, default=dict)
