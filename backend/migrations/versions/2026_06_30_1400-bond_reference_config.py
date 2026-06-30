@@ -98,10 +98,11 @@ def upgrade() -> None:
         ),
     )
 
-    # Seed the default config row
+    # Seed the default config row.
+    # Use cast() to avoid SQLAlchemy confusing :data and the PostgreSQL ::jsonb cast syntax.
     op.execute(
         sa.text(
-            "INSERT INTO bond_reference_config (key, data) VALUES (:key, :data::jsonb)"
+            "INSERT INTO bond_reference_config (key, data) VALUES (:key, cast(:data AS jsonb))"
         ).bindparams(key="default", data=json.dumps(_SEED))
     )
 
