@@ -31,6 +31,7 @@ from .token import router as token_router
 from .user_invitation_code import router as user_invitation_code_router
 from .users import router as users_router
 from .vendor_workouts import router as vendor_workouts_router
+from .vi import router as vi_router
 from .webhooks import router as providers_webhooks_router
 
 v1_router = APIRouter()
@@ -55,6 +56,7 @@ v1_router.include_router(user_invitation_code_router, tags=["External: Mobile SD
 v1_router.include_router(token_router, tags=["External: Token"])
 v1_router.include_router(data_sources_router, tags=["External: Data Sources"])
 v1_router.include_router(outgoing_webhooks_router, prefix="/webhooks", tags=["External: Webhooks"])
+v1_router.include_router(vi_router, tags=["External: Vital Insights"])
 
 # --- Internal: dashboard endpoints ---
 v1_router.include_router(auth_router, prefix="/auth", tags=["Internal: Auth"])

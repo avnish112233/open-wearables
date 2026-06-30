@@ -173,6 +173,19 @@ class Settings(BaseSettings):
     ultrahuman_redirect_uri: str | None = None  # Deprecated: use API_BASE_URL
     ultrahuman_default_scope: str = "ring_data cgm_data profile"
 
+    # VI (VITAL INSIGHTS) SETTINGS
+    vi_base_url: str = "https://vitaldev.vitalinsights.in"
+    vi_hmac_secret: SecretStr = SecretStr("")
+    vi_team_name: str = "bond"
+    # Path to the patient-data read endpoint — fill in once VI shares it
+    vi_patient_path: str = "/content/patient-data"
+    # Path to the appointment write endpoint (from Elixirs API doc)
+    vi_appointment_path: str = "/content/appointment-from-external-team"
+
+    # AARTHI SCANS SETTINGS (slot/test/branch lookup for VI appointments)
+    aarthi_base_url: str = "https://aarthiscan.com/FieldPlus/vendorSupport/vitalMriTeam"
+    aarthi_api_key: SecretStr | None = None
+
     # EMAIL SETTINGS (Resend)
     resend_api_key: SecretStr | None = None
     email_from_address: str | None = None
