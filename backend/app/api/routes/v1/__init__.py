@@ -34,6 +34,7 @@ from .vendor_workouts import router as vendor_workouts_router
 from .vi import router as vi_router
 from .bond import router as bond_router
 from .bond_auth import router as bond_auth_router
+from .bond_portal import router as bond_portal_router
 from .webhooks import router as providers_webhooks_router
 
 v1_router = APIRouter()
@@ -61,6 +62,7 @@ v1_router.include_router(outgoing_webhooks_router, prefix="/webhooks", tags=["Ex
 v1_router.include_router(vi_router, tags=["External: Vital Insights"])
 v1_router.include_router(bond_router, tags=["External: Bond"])
 v1_router.include_router(bond_auth_router, tags=["External: Bond Auth"])
+v1_router.include_router(bond_portal_router, tags=["External: Bond Athlete Portal"])
 
 # --- Internal: dashboard endpoints ---
 v1_router.include_router(auth_router, prefix="/auth", tags=["Internal: Auth"])
