@@ -38,7 +38,10 @@ for _name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
 
 @asynccontextmanager
 async def _lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
-    svix_service.register_event_types()
+    try:
+        svix_service.register_event_types()
+    except Exception:
+        logging.getLogger(__name__).warning("Svix event type registration failed — webhooks unavailable")
     yield
 
 
