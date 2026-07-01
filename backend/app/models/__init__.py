@@ -1,5 +1,6 @@
 from .api_key import ApiKey
 from .bond_athlete import BondAthlete
+from .bond_coach import BondCoach
 from .bond_plan import BondPlan
 from .application import Application
 from .archival_setting import ArchivalSetting
@@ -27,6 +28,7 @@ from .workout_details import WorkoutDetails
 __all__ = [
     "ApiKey",
     "BondAthlete",
+    "BondCoach",
     "BondPlan",
     "Application",
     "ArchivalSetting",

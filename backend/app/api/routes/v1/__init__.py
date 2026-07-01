@@ -33,6 +33,7 @@ from .users import router as users_router
 from .vendor_workouts import router as vendor_workouts_router
 from .vi import router as vi_router
 from .bond import router as bond_router
+from .bond_auth import router as bond_auth_router
 from .webhooks import router as providers_webhooks_router
 
 v1_router = APIRouter()
@@ -59,6 +60,7 @@ v1_router.include_router(data_sources_router, tags=["External: Data Sources"])
 v1_router.include_router(outgoing_webhooks_router, prefix="/webhooks", tags=["External: Webhooks"])
 v1_router.include_router(vi_router, tags=["External: Vital Insights"])
 v1_router.include_router(bond_router, tags=["External: Bond"])
+v1_router.include_router(bond_auth_router, tags=["External: Bond Auth"])
 
 # --- Internal: dashboard endpoints ---
 v1_router.include_router(auth_router, prefix="/auth", tags=["Internal: Auth"])

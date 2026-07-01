@@ -7,6 +7,56 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, ConfigDict, Field
 
 
+# ── Coach ─────────────────────────────────────────────────────────────────────
+
+class BondCoachCreate(BaseModel):
+    name: str = Field(..., max_length=100)
+    phone: str = Field(..., max_length=255)
+    email: str | None = Field(None, max_length=255)
+    gym_id: str | None = Field(None, max_length=255)
+    gym_name: str | None = Field(None, max_length=100)
+
+
+class BondCoachCreateInternal(BondCoachCreate):
+    id: UUID = Field(default_factory=uuid4)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class BondCoachUpdate(BaseModel):
+    name: str | None = Field(None, max_length=100)
+    email: str | None = Field(None, max_length=255)
+    gym_id: str | None = None
+    gym_name: str | None = Field(None, max_length=100)
+
+
+class BondCoachRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    name: str
+    phone: str
+    email: str | None = None
+    gym_id: str | None = None
+    gym_name: str | None = None
+    created_at: datetime
+
+
+# ── Auth ──────────────────────────────────────────────────────────────────────
+
+class OtpRequest(BaseModel):
+    phone: str = Field(..., description="E.164 format e.g. +919876543210")
+
+
+class OtpVerify(BaseModel):
+    phone: str
+    otp: str = Field(..., min_length=6, max_length=6)
+
+
+class SessionResponse(BaseModel):
+    token: str
+    coach: BondCoachRead
+
+
 # ── Athlete ───────────────────────────────────────────────────────────────────
 
 class BondAthleteCreate(BaseModel):

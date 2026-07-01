@@ -177,7 +177,9 @@ class Settings(BaseSettings):
     vi_base_url: str = "https://vitaldev.vitalinsights.in"
     vi_hmac_secret: SecretStr = SecretStr("")
     vi_team_name: str = "bond"
-    # Path to the patient-data read endpoint — fill in once VI shares it
+    # Read-only API key for patient diagnostics (simple bearer auth)
+    vi_api_key: SecretStr | None = None
+    # Path to the patient-data read endpoint
     vi_patient_path: str = "/content/patient-data"
     # Path to the appointment write endpoint (from Elixirs API doc)
     vi_appointment_path: str = "/content/appointment-from-external-team"
@@ -185,6 +187,14 @@ class Settings(BaseSettings):
     # AARTHI SCANS SETTINGS (slot/test/branch lookup for VI appointments)
     aarthi_base_url: str = "https://aarthiscan.com/FieldPlus/vendorSupport/vitalMriTeam"
     aarthi_api_key: SecretStr | None = None
+
+    # BOND AUTH SETTINGS
+    # MSG91 SMS for OTP delivery (set BOND_MSG91_AUTH_KEY and BOND_MSG91_TEMPLATE_ID in Railway)
+    bond_msg91_auth_key: SecretStr | None = None
+    bond_msg91_template_id: str | None = None
+    bond_msg91_sender_id: str = "BONDCO"
+    bond_otp_ttl_seconds: int = 300  # 5 minutes
+    bond_session_ttl_seconds: int = 86400 * 30  # 30 days
 
     # EMAIL SETTINGS (Resend)
     resend_api_key: SecretStr | None = None
