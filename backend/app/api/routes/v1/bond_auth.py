@@ -9,7 +9,8 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.database import DbSession
 from app.repositories.bond_coach_repository import BondCoachRepository
-from app.schemas.bond import BondCoachRead, OtpRequest, OtpVerify, SessionResponse
+from app.schemas.bond import BondCoachCreate, BondCoachRead, OtpRequest, OtpVerify, SessionResponse
+from app.services.bond_service import bond_coach_service
 from app.services.bond_otp_service import (
     create_session,
     generate_and_store_otp,
@@ -37,6 +38,19 @@ def _get_bond_coach_id(
 
 
 BondCoachIdDep = Annotated[str, Depends(_get_bond_coach_id)]
+
+
+@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=BondCoachRead)
+def register_coach(payload: BondCoachCreate, db: DbSession) -> BondCoachRead:
+    """Self-service coach registration — creates the coach record and returns it."""
+    existing = _coach_repo.get_by_phone(db, payload.phone)
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A coach with this phone number is already registered.",
+        )
+    coach = bond_coach_service.create(db, payload)
+    return BondCoachRead.model_validate(coach)
 
 
 @router.post("/request-otp", status_code=status.HTTP_200_OK)

@@ -5,14 +5,19 @@ from uuid import UUID
 
 from app.database import DbSession
 from app.models.bond_athlete import BondAthlete
+from app.models.bond_coach import BondCoach
 from app.models.bond_plan import BondPlan
 from app.repositories.bond_athlete_repository import BondAthleteRepository
+from app.repositories.bond_coach_repository import BondCoachRepository
 from app.repositories.bond_plan_repository import BondPlanRepository
 from app.schemas.bond import (
     BondAthleteCreate,
     BondAthleteCreateInternal,
     BondAthleteUpdate,
     BondAthleteUpdateInternal,
+    BondCoachCreate,
+    BondCoachCreateInternal,
+    BondCoachUpdate,
     BondPlanCreate,
     BondPlanCreateInternal,
     BondPlanUpdate,
@@ -85,5 +90,15 @@ class BondPlanService(AppService[BondPlanRepository, BondPlan, BondPlanCreateInt
         return self.crud.update(db_session, plan, internal)
 
 
+class BondCoachService(AppService[BondCoachRepository, BondCoach, BondCoachCreateInternal, BondCoachUpdate]):
+    def __init__(self) -> None:
+        super().__init__(crud_model=BondCoachRepository, model=BondCoach, log=log)
+
+    def create(self, db_session: DbSession, creator: BondCoachCreate) -> BondCoach:
+        internal = BondCoachCreateInternal(**creator.model_dump())
+        return super().create(db_session, internal)
+
+
 bond_athlete_service = BondAthleteService()
 bond_plan_service = BondPlanService()
+bond_coach_service = BondCoachService()

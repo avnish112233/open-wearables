@@ -15,6 +15,8 @@ class BondCoachCreate(BaseModel):
     email: str | None = Field(None, max_length=255)
     gym_id: str | None = Field(None, max_length=255)
     gym_name: str | None = Field(None, max_length=100)
+    gym_location: str | None = Field(None, max_length=255)
+    hyrox_athlete_count: int | None = Field(None, ge=0)
 
 
 class BondCoachCreateInternal(BondCoachCreate):
@@ -27,6 +29,8 @@ class BondCoachUpdate(BaseModel):
     email: str | None = Field(None, max_length=255)
     gym_id: str | None = None
     gym_name: str | None = Field(None, max_length=100)
+    gym_location: str | None = Field(None, max_length=255)
+    hyrox_athlete_count: int | None = Field(None, ge=0)
 
 
 class BondCoachRead(BaseModel):
@@ -38,6 +42,8 @@ class BondCoachRead(BaseModel):
     email: str | None = None
     gym_id: str | None = None
     gym_name: str | None = None
+    gym_location: str | None = None
+    hyrox_athlete_count: int | None = None
     created_at: datetime
 
 

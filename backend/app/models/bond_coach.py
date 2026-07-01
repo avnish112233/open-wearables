@@ -15,3 +15,5 @@ class BondCoach(BaseDbModel):
     email: Mapped[str_255 | None]
     gym_id: Mapped[str_255 | None]
     gym_name: Mapped[str_100 | None]
+    gym_location: Mapped[str_255 | None]
+    hyrox_athlete_count: Mapped[int | None]
